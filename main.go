@@ -1,32 +1,15 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"sync"
-	"time"
+	"net/http"
 )
 
-func f(ctx context.Context, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for {
-		select {
-			case <-ctx.Done():
-				return
-			default:
-		}
-		fmt.Println("gorutine: 処理")
-		time.Sleep(1 * time.Second)
-	}
+func myHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World!")
 }
 
 func main() {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	ctx, cancel := context.WithCancel(context.Background())
-	go f(ctx, &wg)
-	
-	time.Sleep(10 * time.Second)
-	cancel()
-	wg.Wait()
+	http.HandleFunc("/", myHandler)
+	http.ListenAndServe(":8080", nil)
 }
